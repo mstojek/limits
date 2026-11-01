@@ -72,13 +72,29 @@ jobs:
         with:
           pattern: limits-binaries-*
           path: artifacts
-          merge-multiple: true
+          merge-multiple: false
 
       - name: Prepare Release Assets
         run: |
           mkdir -p release-assets
+
+          # Copy .ipk packages (already include package architecture in filename, e.g. _mipsel_24kc.ipk)
           find artifacts -name "limits*.ipk" -exec cp {} release-assets/ \;
-          find artifacts -name "limits*.apk" -exec cp {} release-assets/ \;
+
+          # Copy .apk packages. OpenWrt SDK names them without arch (e.g. limits-1.0.0-r1.apk).
+          # To prevent packages from different architectures from overwriting each other,
+          # append the architecture name extracted from the SDK directory path (bin/packages/<arch>/...).
+          find artifacts -name "limits*.apk" | while read -r file; do
+            ARCH=$(echo "$file" | sed -n 's|.*bin/packages/\([^/]*\)/.*|\1|p')
+            BASENAME=$(basename "$file")
+            NAME_NO_EXT="${BASENAME%.apk}"
+            if [ -n "$ARCH" ] && [[ "$BASENAME" != *"$ARCH"* ]]; then
+              cp "$file" "release-assets/${NAME_NO_EXT}_${ARCH}.apk"
+            else
+              cp "$file" release-assets/
+            fi
+          done
+
           ls -la release-assets/
 
       - name: Create GitHub Release
