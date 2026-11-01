@@ -1,0 +1,91 @@
+name: Build OpenWrt Package
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      target_arch:
+        description: 'Target architecture to build (or "all")'
+        required: true
+        default: 'all'
+        type: choice
+        options:
+          - 'all'
+          - 'ramips-mt7621-23.05.3'
+          - 'ramips-mt7621-25.12.2'
+          - 'mediatek-filogic-23.05.3'
+          - 'mediatek-filogic-25.12.2'
+
+jobs:
+  prepare-matrix:
+    name: Determine Build Matrix
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    steps:
+      - id: set-matrix
+        run: |
+          ALL_ARCHES='["ramips-mt7621-23.05.3", "ramips-mt7621-25.12.2", "mediatek-filogic-23.05.3", "mediatek-filogic-25.12.2"]'
+          CHOSEN="${{ inputs.target_arch }}"
+          if [ -z "$CHOSEN" ] || [ "$CHOSEN" = "all" ]; then
+            echo "matrix={\"arch\": $ALL_ARCHES}" >> "$GITHUB_OUTPUT"
+          else
+            echo "matrix={\"arch\": [\"$CHOSEN\"]}" >> "$GITHUB_OUTPUT"
+          fi
+
+  build:
+    name: Build for ${{ matrix.arch }}
+    needs: prepare-matrix
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson(needs.prepare-matrix.outputs.matrix) }}
+    steps:
+      - name: Checkout Source
+        uses: actions/checkout@v4
+
+      - name: Build Package via OpenWrt SDK
+        uses: openwrt/gh-action-sdk@v7
+        env:
+          ARCH: ${{ matrix.arch }}
+          PACKAGES: limits
+          FEED_DIR: ${{ github.workspace }}
+
+      - name: Upload Build Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: limits-binaries-${{ matrix.arch }}
+          path: bin/packages/**/limits*
+
+  release:
+    name: Create GitHub Release
+    needs: build
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Download Filtered Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: limits-binaries-*
+          path: artifacts
+          merge-multiple: true
+
+      - name: Prepare Release Assets
+        run: |
+          mkdir -p release-assets
+          find artifacts -name "limits*.ipk" -exec cp {} release-assets/ \;
+          find artifacts -name "limits*.apk" -exec cp {} release-assets/ \;
+          ls -la release-assets/
+
+      - name: Create GitHub Release
+        uses: ncipollo/release-action@v1
+        with:
+          artifacts: "release-assets/*"
+          tag: ${{ github.ref_name }}
+          name: Release ${{ github.ref_name }}
+          allowUpdates: true
+          token: ${{ secrets.GITHUB_TOKEN }}
