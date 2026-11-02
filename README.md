@@ -1,4 +1,4 @@
-# limits
+# typesizes
 
 OpenWrt utility tool to display sizes of basic C data types and pointers for the router's target CPU architecture.
 
@@ -13,11 +13,11 @@ This project features automated package building for both **`.ipk`** (legacy for
 ├── .github/
 │   └── workflows/
 │       └── build.yml       # GitHub Actions workflow for building ipk and apk packages
-├── limits/
+├── typesizes/
 │   ├── Makefile            # Main OpenWrt SDK package Makefile
 │   └── src/
-│       ├── Makefile        # Inner Makefile compiling the limits binary
-│       └── limits.c        # C source code
+│       ├── Makefile        # Inner Makefile compiling the typesizes binary
+│       └── typesizes.c     # C source code
 ├── LICENSE
 ├── README.md               # English documentation
 └── README-pl.md            # Polish documentation
@@ -33,10 +33,10 @@ The GitHub Actions workflow produces **4 package files** in the Release:
 
 | Release File Name | CPU Architecture | Format | OpenWrt Release | Supported Devices |
 |---|---|---|---|---|
-| **`limits_1.0.0-1_mipsel_24kc.ipk`** | `mipsel_24kc` (ramips/mt7621) | `.ipk` (opkg) | OpenWrt 23.05 (stable) | **Netgear R6220**, **Xiaomi Mi Router 4A Gigabit** |
-| **`limits-1.0.0-r1_mipsel_24kc.apk`** | `mipsel_24kc` (ramips/mt7621) | `.apk` (apk) | OpenWrt 25.12 (modern) | **Netgear R6220**, **Xiaomi Mi Router 4A Gigabit** |
-| **`limits_1.0.0-1_aarch64_cortex-a53.ipk`** | `aarch64_cortex-a53` (filogic) | `.ipk` (opkg) | OpenWrt 23.05 (stable) | **Cudy WR3000** (s, h, p), M3000, RE3000 |
-| **`limits-1.0.0-r1_aarch64_cortex-a53.apk`** | `aarch64_cortex-a53` (filogic) | `.apk` (apk) | OpenWrt 25.12 (modern) | **Cudy WR3000** (s, h, p), M3000, RE3000 |
+| **`typesizes_1.0.0-1_mipsel_24kc.ipk`** | `mipsel_24kc` (ramips/mt7621) | `.ipk` (opkg) | OpenWrt 23.05 (stable) | **Netgear R6220**, **Xiaomi Mi Router 4A Gigabit** |
+| **`typesizes-1.0.0-r1_mipsel_24kc.apk`** | `mipsel_24kc` (ramips/mt7621) | `.apk` (apk) | OpenWrt 25.12 (modern) | **Netgear R6220**, **Xiaomi Mi Router 4A Gigabit** |
+| **`typesizes_1.0.0-1_aarch64_cortex-a53.ipk`** | `aarch64_cortex-a53` (filogic) | `.ipk` (opkg) | OpenWrt 23.05 (stable) | **Cudy WR3000** (s, h, p), M3000, RE3000 |
+| **`typesizes-1.0.0-r1_aarch64_cortex-a53.apk`** | `aarch64_cortex-a53` (filogic) | `.apk` (apk) | OpenWrt 25.12 (modern) | **Cudy WR3000** (s, h, p), M3000, RE3000 |
 
 ### Why `mipsel_24kc` and `aarch64_cortex-a53`?
 - **`mipsel_24kc`**: The MediaTek MT7621 SoC features a 32-bit MIPS 1004Kc CPU core (little-endian). This is standard OpenWrt architecture naming.
@@ -91,20 +91,20 @@ In `.github/workflows/build.yml`:
 
 ### Installing `.ipk` (OpenWrt <= 23.05, `opkg`)
 ```bash
-scp limits_1.0.0-1_mipsel_24kc.ipk root@192.168.1.1:/tmp/
+scp typesizes_1.0.0-1_mipsel_24kc.ipk root@192.168.1.1:/tmp/
 ssh root@192.168.1.1
-opkg install /tmp/limits_1.0.0-1_mipsel_24kc.ipk
+opkg install /tmp/typesizes_1.0.0-1_mipsel_24kc.ipk
 ```
 
 ### Installing `.apk` (OpenWrt >= 24.10, `apk`)
 ```bash
-scp limits-1.0.0-r1_mipsel_24kc.apk root@192.168.1.1:/tmp/
+scp typesizes-1.0.0-r1_mipsel_24kc.apk root@192.168.1.1:/tmp/
 ssh root@192.168.1.1
-apk add --allow-untrusted /tmp/limits-1.0.0-r1_mipsel_24kc.apk
+apk add --allow-untrusted /tmp/typesizes-1.0.0-r1_mipsel_24kc.apk
 ```
 
 ### Running the tool
 Run the binary anywhere on the router:
 ```bash
-limits
+typesizes
 ```

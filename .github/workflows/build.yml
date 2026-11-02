@@ -50,14 +50,14 @@ jobs:
         uses: openwrt/gh-action-sdk@v11
         env:
           ARCH: ${{ matrix.arch }}
-          PACKAGES: limits
+          PACKAGES: typesizes
           FEED_DIR: ${{ github.workspace }}
 
       - name: Upload Build Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: limits-binaries-${{ matrix.arch }}
-          path: bin/packages/**/limits*
+          name: typesizes-binaries-${{ matrix.arch }}
+          path: bin/packages/**/typesizes*
 
   release:
     name: Create GitHub Release
@@ -70,7 +70,7 @@ jobs:
       - name: Download Filtered Artifacts
         uses: actions/download-artifact@v4
         with:
-          pattern: limits-binaries-*
+          pattern: typesizes-binaries-*
           path: artifacts
           merge-multiple: false
 
@@ -79,12 +79,12 @@ jobs:
           mkdir -p release-assets
 
           # Copy .ipk packages (already include package architecture in filename, e.g. _mipsel_24kc.ipk)
-          find artifacts -name "limits*.ipk" -exec cp {} release-assets/ \;
+          find artifacts -name "typesizes*.ipk" -exec cp {} release-assets/ \;
 
-          # Copy .apk packages. OpenWrt SDK names them without arch (e.g. limits-1.0.0-r1.apk).
+          # Copy .apk packages. OpenWrt SDK names them without arch (e.g. typesizes-1.0.0-r1.apk).
           # To prevent packages from different architectures from overwriting each other,
           # append the architecture name extracted from the SDK directory path (bin/packages/<arch>/...).
-          find artifacts -name "limits*.apk" | while read -r file; do
+          find artifacts -name "typesizes*.apk" | while read -r file; do
             ARCH=$(echo "$file" | sed -n 's|.*bin/packages/\([^/]*\)/.*|\1|p')
             BASENAME=$(basename "$file")
             NAME_NO_EXT="${BASENAME%.apk}"
