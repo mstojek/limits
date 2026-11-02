@@ -2,15 +2,15 @@ CC ?= gcc
 CFLAGS ?= -Wall -Wextra -O2
 LDFLAGS ?=
 
-all: limits
+all: typesizes
 
-limits: limits.o
+typesizes: typesizes.o
 	$(CC) $(LDFLAGS) -o $@ $^
 
 %.o: %.c
 	$(CC) $(CFLAGS) -c $< -o $@
 
 clean:
-	rm -f limits *.o
+	rm -f typesizes *.o
 
 .PHONY: all clean

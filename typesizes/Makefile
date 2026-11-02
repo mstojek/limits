@@ -1,6 +1,6 @@
 include $(TOPDIR)/rules.mk
 
-PKG_NAME:=limits
+PKG_NAME:=typesizes
 PKG_VERSION:=1.0.0
 PKG_RELEASE:=1
 PKG_LICENSE:=MIT
@@ -8,14 +8,14 @@ PKG_LICENSE_FILES:=LICENSE
 
 include $(INCLUDE_DIR)/package.mk
 
-define Package/limits
+define Package/typesizes
   SECTION:=utils
   CATEGORY:=Utilities
   TITLE:=Data type and pointer size inspection tool
-  URL:=https://github.com/mstojek/limits
+  URL:=https://github.com/mstojek/typesizes
 endef
 
-define Package/limits/description
+define Package/typesizes/description
   A small C utility to display the byte sizes of various C data types and pointers on OpenWrt architectures.
 endef
 
@@ -31,9 +31,9 @@ define Build/Compile
 		LDFLAGS="$(TARGET_LDFLAGS)"
 endef
 
-define Package/limits/install
+define Package/typesizes/install
 	$(INSTALL_DIR) $(1)/usr/bin
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/limits $(1)/usr/bin/limits
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/typesizes $(1)/usr/bin/typesizes
 endef
 
-$(eval $(call BuildPackage,limits))
+$(eval $(call BuildPackage,typesizes))
