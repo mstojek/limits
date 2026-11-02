@@ -29,19 +29,18 @@ This project features automated package building for both **`.ipk`** (legacy for
 
 In OpenWrt, binary packages are built against the **CPU architecture**. A single compiled binary runs on all devices sharing the same architecture.
 
-The GitHub Actions workflow produces **4 package files** in the Release:
+The GitHub Actions workflow produces **exactly 4 package files** in the Release with clean, minimalist filenames:
 
 | Release File Name | CPU Architecture | Format | OpenWrt Release | Supported Devices |
 |---|---|---|---|---|
-| **`typesizes_1.0.0-1_mipsel_24kc.ipk`** | `mipsel_24kc` (ramips/mt7621) | `.ipk` (opkg) | OpenWrt 23.05 (stable) | **Netgear R6220**, **Xiaomi Mi Router 4A Gigabit** |
-| **`typesizes-1.0.0-r1_mipsel_24kc.apk`** | `mipsel_24kc` (ramips/mt7621) | `.apk` (apk) | OpenWrt 25.12 (modern) | **Netgear R6220**, **Xiaomi Mi Router 4A Gigabit** |
-| **`typesizes_1.0.0-1_aarch64_cortex-a53.ipk`** | `aarch64_cortex-a53` (filogic) | `.ipk` (opkg) | OpenWrt 23.05 (stable) | **Cudy WR3000** (s, h, p), M3000, RE3000 |
-| **`typesizes-1.0.0-r1_aarch64_cortex-a53.apk`** | `aarch64_cortex-a53` (filogic) | `.apk` (apk) | OpenWrt 25.12 (modern) | **Cudy WR3000** (s, h, p), M3000, RE3000 |
+| **`typesizes_mipsel_24kc.ipk`** | `mipsel_24kc` (ramips/mt7621) | `.ipk` (opkg) | OpenWrt 23.05 (stable) | **Netgear R6220**, **Xiaomi Mi Router 4A Gigabit** |
+| **`typesizes_mipsel_24kc.apk`** | `mipsel_24kc` (ramips/mt7621) | `.apk` (apk) | OpenWrt 25.12 (modern) | **Netgear R6220**, **Xiaomi Mi Router 4A Gigabit** |
+| **`typesizes_aarch64_cortex-a53.ipk`** | `aarch64_cortex-a53` (filogic) | `.ipk` (opkg) | OpenWrt 23.05 (stable) | **Cudy WR3000** (s, h, p), M3000, RE3000 |
+| **`typesizes_aarch64_cortex-a53.apk`** | `aarch64_cortex-a53` (filogic) | `.apk` (apk) | OpenWrt 25.12 (modern) | **Cudy WR3000** (s, h, p), M3000, RE3000 |
 
 ### Why `mipsel_24kc` and `aarch64_cortex-a53`?
-- **`mipsel_24kc`**: The MediaTek MT7621 SoC features a 32-bit MIPS 1004Kc CPU core (little-endian). This is standard OpenWrt architecture naming.
+- **`mipsel_24kc`**: The MediaTek MT7621 SoC features a 32-bit MIPS 1004Kc CPU core (little-endian). This is standard OpenWrt architecture naming for devices like Netgear R6220 and Xiaomi Mi Router 4A Gigabit.
 - **`aarch64_cortex-a53`**: The MediaTek Filogic 820 / MT7981B SoC in Cudy WR3000 series features a 64-bit ARM Cortex-A53 CPU.
-- OpenWrt SDK automatically includes the architecture in `.ipk` filenames. For `.apk` files, our workflow appends the architecture suffix so both `.apk` files can coexist in GitHub Releases without overwriting each other.
 
 ---
 
@@ -91,16 +90,16 @@ In `.github/workflows/build.yml`:
 
 ### Installing `.ipk` (OpenWrt <= 23.05, `opkg`)
 ```bash
-scp typesizes_1.0.0-1_mipsel_24kc.ipk root@192.168.1.1:/tmp/
+scp typesizes_mipsel_24kc.ipk root@192.168.1.1:/tmp/
 ssh root@192.168.1.1
-opkg install /tmp/typesizes_1.0.0-1_mipsel_24kc.ipk
+opkg install /tmp/typesizes_mipsel_24kc.ipk
 ```
 
 ### Installing `.apk` (OpenWrt >= 24.10, `apk`)
 ```bash
-scp typesizes-1.0.0-r1_mipsel_24kc.apk root@192.168.1.1:/tmp/
+scp typesizes_mipsel_24kc.apk root@192.168.1.1:/tmp/
 ssh root@192.168.1.1
-apk add --allow-untrusted /tmp/typesizes-1.0.0-r1_mipsel_24kc.apk
+apk add --allow-untrusted /tmp/typesizes_mipsel_24kc.apk
 ```
 
 ### Running the tool

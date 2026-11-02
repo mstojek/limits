@@ -29,19 +29,18 @@ Projekt zawiera w pełni zautomatyzowany proces budowania pakietów w formatach 
 
 W OpenWrt pakiety binarne są kompilowane pod **architekturę procesora (CPU Architecture)**. Dzięki temu jeden plik binarny pasuje do wszystkich urządzeń opartych na danej architekturze.
 
-W wyniku automatycznego budowania (Release) powstają **4 gotowe pliki pakietów**:
+W wyniku automatycznego budowania (Release) powstają **dokładnie 4 gotowe pliki pakietów o czytelnych, prostych nazwach**:
 
 | Nazwa pliku w Release | Architektura CPU | Format | Wydanie OpenWrt | Obsługiwane routery |
 |---|---|---|---|---|
-| **`typesizes_1.0.0-1_mipsel_24kc.ipk`** | `mipsel_24kc` (ramips/mt7621) | `.ipk` (opkg) | OpenWrt 23.05 (stabilna) | **Netgear R6220**, **Xiaomi Mi Router 4A Gigabit** |
-| **`typesizes-1.0.0-r1_mipsel_24kc.apk`** | `mipsel_24kc` (ramips/mt7621) | `.apk` (apk) | OpenWrt 25.12 (nowoczesna) | **Netgear R6220**, **Xiaomi Mi Router 4A Gigabit** |
-| **`typesizes_1.0.0-1_aarch64_cortex-a53.ipk`** | `aarch64_cortex-a53` (filogic) | `.ipk` (opkg) | OpenWrt 23.05 (stabilna) | **Cudy WR3000** (warianty s, h, p), Cudy M3000, RE3000 |
-| **`typesizes-1.0.0-r1_aarch64_cortex-a53.apk`** | `aarch64_cortex-a53` (filogic) | `.apk` (apk) | OpenWrt 25.12 (nowoczesna) | **Cudy WR3000** (warianty s, h, p), Cudy M3000, RE3000 |
+| **`typesizes_mipsel_24kc.ipk`** | `mipsel_24kc` (ramips/mt7621) | `.ipk` (opkg) | OpenWrt 23.05 (stabilna) | **Netgear R6220**, **Xiaomi Mi Router 4A Gigabit** |
+| **`typesizes_mipsel_24kc.apk`** | `mipsel_24kc` (ramips/mt7621) | `.apk` (apk) | OpenWrt 25.12 (nowoczesna) | **Netgear R6220**, **Xiaomi Mi Router 4A Gigabit** |
+| **`typesizes_aarch64_cortex-a53.ipk`** | `aarch64_cortex-a53` (filogic) | `.ipk` (opkg) | OpenWrt 23.05 (stabilna) | **Cudy WR3000** (warianty s, h, p), Cudy M3000, RE3000 |
+| **`typesizes_aarch64_cortex-a53.apk`** | `aarch64_cortex-a53` (filogic) | `.apk` (apk) | OpenWrt 25.12 (nowoczesna) | **Cudy WR3000** (warianty s, h, p), Cudy M3000, RE3000 |
 
 ### Dlaczego nazwy to `mipsel_24kc` i `aarch64_cortex-a53`?
 - **`mipsel_24kc`**: procesor MediaTek MT7621 to 32-bitowy rdzeń MIPS 1004Kc (little-endian). Jest to standardowa nazwa architektury w OpenWrt dla takich urządzeń jak Netgear R6220 oraz Xiaomi Mi Router 4A Gigabit.
 - **`aarch64_cortex-a53`**: procesor MediaTek Filogic 820 / MT7981B w routerach Cudy WR3000 to 64-bitowy procesor ARM Cortex-A53.
-- Pliki `.ipk` generują ten sufiks domyślnie w OpenWrt SDK. Dla plików `.apk` workflow automatycznie dopisuje nazwę architektury, aby zapobiec nadpisaniu plików w GitHub Releases.
 
 ---
 
@@ -110,23 +109,23 @@ Po zapisaniu zmian i wypchnięciu commita workflow natychmiast zacznie obsługiw
 ### 1. Instalacja pakietu `.ipk` (OpenWrt <= 23.05, menedżer `opkg`)
 Prześlij plik `.ipk` na router (np. przez `scp`):
 ```bash
-scp typesizes_1.0.0-1_mipsel_24kc.ipk root@192.168.1.1:/tmp/
+scp typesizes_mipsel_24kc.ipk root@192.168.1.1:/tmp/
 ```
 Zaloguj się przez SSH na router i zainstaluj:
 ```bash
 ssh root@192.168.1.1
-opkg install /tmp/typesizes_1.0.0-1_mipsel_24kc.ipk
+opkg install /tmp/typesizes_mipsel_24kc.ipk
 ```
 
 ### 2. Instalacja pakietu `.apk` (OpenWrt 24.10 / 25.x / nowsze, menedżer `apk`)
 Prześlij plik `.apk` na router:
 ```bash
-scp typesizes-1.0.0-r1_mipsel_24kc.apk root@192.168.1.1:/tmp/
+scp typesizes_mipsel_24kc.apk root@192.168.1.1:/tmp/
 ```
 Zaloguj się przez SSH i zainstaluj:
 ```bash
 ssh root@192.168.1.1
-apk add --allow-untrusted /tmp/typesizes-1.0.0-r1_mipsel_24kc.apk
+apk add --allow-untrusted /tmp/typesizes_mipsel_24kc.apk
 ```
 
 ### 3. Uruchomienie programu
