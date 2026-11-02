@@ -25,6 +25,26 @@ This project features automated package building for both **`.ipk`** (legacy for
 
 ---
 
+## 🎯 Target Architectures & Generated Packages
+
+In OpenWrt, binary packages are built against the **CPU architecture**. A single compiled binary runs on all devices sharing the same architecture.
+
+The GitHub Actions workflow produces **4 package files** in the Release:
+
+| Release File Name | CPU Architecture | Format | OpenWrt Release | Supported Devices |
+|---|---|---|---|---|
+| **`limits_1.0.0-1_mipsel_24kc.ipk`** | `mipsel_24kc` (ramips/mt7621) | `.ipk` (opkg) | OpenWrt 23.05 (stable) | **Netgear R6220**, **Xiaomi Mi Router 4A Gigabit** |
+| **`limits-1.0.0-r1_mipsel_24kc.apk`** | `mipsel_24kc` (ramips/mt7621) | `.apk` (apk) | OpenWrt 25.12 (modern) | **Netgear R6220**, **Xiaomi Mi Router 4A Gigabit** |
+| **`limits_1.0.0-1_aarch64_cortex-a53.ipk`** | `aarch64_cortex-a53` (filogic) | `.ipk` (opkg) | OpenWrt 23.05 (stable) | **Cudy WR3000** (s, h, p), M3000, RE3000 |
+| **`limits-1.0.0-r1_aarch64_cortex-a53.apk`** | `aarch64_cortex-a53` (filogic) | `.apk` (apk) | OpenWrt 25.12 (modern) | **Cudy WR3000** (s, h, p), M3000, RE3000 |
+
+### Why `mipsel_24kc` and `aarch64_cortex-a53`?
+- **`mipsel_24kc`**: The MediaTek MT7621 SoC features a 32-bit MIPS 1004Kc CPU core (little-endian). This is standard OpenWrt architecture naming.
+- **`aarch64_cortex-a53`**: The MediaTek Filogic 820 / MT7981B SoC in Cudy WR3000 series features a 64-bit ARM Cortex-A53 CPU.
+- OpenWrt SDK automatically includes the architecture in `.ipk` filenames. For `.apk` files, our workflow appends the architecture suffix so both `.apk` files can coexist in GitHub Releases without overwriting each other.
+
+---
+
 ## 🚀 How GitHub Actions Automation Works
 
 The workflow (`.github/workflows/build.yml`) is triggered in two ways:
@@ -34,26 +54,13 @@ The workflow (`.github/workflows/build.yml`) is triggered in two ways:
    git tag v1.0.0
    git push origin v1.0.0
    ```
-   Compiles packages for all configured architectures and publishes `.ipk` and `.apk` files to a GitHub Release.
+   Compiles packages for all configured architectures and publishes all 4 `.ipk` and `.apk` files to the GitHub Release.
 
 2. **Manually via GitHub Actions (`workflow_dispatch`)**:
    - Go to the **Actions** tab -> **Build OpenWrt Package**.
    - Click **Run workflow**.
    - Choose a target architecture (e.g., `ramips-mt7621-23.05.3`) or `all`.
    - Built packages will be saved and downloadable under job **Artifacts**.
-
----
-
-## 🎯 Target Architectures & Devices
-
-| Target (OpenWrt SDK) | OpenWrt Version | Package Format | Example Devices | CPU Architecture |
-|---|---|---|---|---|
-| `ramips-mt7621-23.05.3` | OpenWrt 23.05 (stable) | `.ipk` | **Netgear R6220**, **Xiaomi Mi Router 4A Gigabit** | MIPS 1004Kc (`mipsel_24kc`) |
-| `ramips-mt7621-25.12.2` | OpenWrt 25.12 (modern) | `.apk` | **Netgear R6220**, **Xiaomi Mi Router 4A Gigabit** | MIPS 1004Kc (`mipsel_24kc`) |
-| `mediatek-filogic-23.05.3` | OpenWrt 23.05 (stable) | `.ipk` | **Cudy WR3000** (s, h, p variants), M3000, RE3000 | ARM Cortex-A53 64-bit (`aarch64_cortex-a53`) |
-| `mediatek-filogic-25.12.2` | OpenWrt 25.12 (modern) | `.apk` | **Cudy WR3000** (s, h, p variants), M3000, RE3000 | ARM Cortex-A53 64-bit (`aarch64_cortex-a53`) |
-
-> **Note**: In OpenWrt, packages are built per target architecture. Therefore, one `ramips-mt7621` binary runs on both Netgear R6220 and Xiaomi Mi 4A Gigabit, while one `mediatek-filogic` binary runs on all Cudy WR3000 series devices.
 
 ---
 
@@ -91,9 +98,9 @@ opkg install /tmp/limits_1.0.0-1_mipsel_24kc.ipk
 
 ### Installing `.apk` (OpenWrt >= 24.10, `apk`)
 ```bash
-scp limits-1.0.0-r1.apk root@192.168.1.1:/tmp/
+scp limits-1.0.0-r1_mipsel_24kc.apk root@192.168.1.1:/tmp/
 ssh root@192.168.1.1
-apk add --allow-untrusted /tmp/limits-1.0.0-r1.apk
+apk add --allow-untrusted /tmp/limits-1.0.0-r1_mipsel_24kc.apk
 ```
 
 ### Running the tool
