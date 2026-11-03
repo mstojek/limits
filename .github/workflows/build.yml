@@ -15,8 +15,13 @@ on:
           - 'all'
           - 'ramips-mt7621-23.05.3'
           - 'ramips-mt7621-25.12.2'
-          - 'mediatek-filogic-23.05.3'
           - 'mediatek-filogic-25.12.2'
+          - 'ath79-generic-23.05.3'
+          - 'ath79-generic-25.12.2'
+          - 'x86-64-25.12.2'
+          - 'qualcommax-ipq807x-25.12.2'
+          - 'qualcommax-ipq60xx-25.12.2'
+          - 'bcm27xx-bcm2711-25.12.2'
 
 jobs:
   prepare-matrix:
@@ -27,10 +32,20 @@ jobs:
     steps:
       - id: set-matrix
         run: |
-          ALL_ARCHES='["ramips-mt7621-23.05.3", "ramips-mt7621-25.12.2", "mediatek-filogic-23.05.3", "mediatek-filogic-25.12.2"]'
+          ALL_ARCHES='[
+            "ramips-mt7621-23.05.3",
+            "ramips-mt7621-25.12.2",
+            "mediatek-filogic-25.12.2",
+            "ath79-generic-23.05.3",
+            "ath79-generic-25.12.2",
+            "x86-64-25.12.2",
+            "qualcommax-ipq807x-25.12.2",
+            "qualcommax-ipq60xx-25.12.2",
+            "bcm27xx-bcm2711-25.12.2"
+          ]'
           CHOSEN="${{ inputs.target_arch }}"
           if [ -z "$CHOSEN" ] || [ "$CHOSEN" = "all" ]; then
-            echo "matrix={\"arch\": $ALL_ARCHES}" >> "$GITHUB_OUTPUT"
+            echo "matrix={\"arch\": $(echo $ALL_ARCHES | tr -d '\n ')}" >> "$GITHUB_OUTPUT"
           else
             echo "matrix={\"arch\": [\"$CHOSEN\"]}" >> "$GITHUB_OUTPUT"
           fi
@@ -79,32 +94,26 @@ jobs:
           set -euo pipefail
           mkdir -p release-assets
 
-          # Iterate through each downloaded artifact directory (isolated per matrix target)
+          # Downloaded artifacts are isolated in: artifacts/typesizes-binaries-<target>-<version>/...
+          # Extract the base target name (without the SDK version number) for clean minimalist filenames:
+          # e.g. typesizes-binaries-ramips-mt7621-23.05.3 -> ramips-mt7621
+          # Resulting in: typesizes_ramips-mt7621.ipk, typesizes_ramips-mt7621.apk, etc.
           for dir in artifacts/typesizes-binaries-*; do
             [ -d "$dir" ] || continue
             FOLDER_NAME=$(basename "$dir")
+            # Strip prefix "typesizes-binaries-" and trailing OpenWrt release "-23.05.3" / "-25.12.2"
+            TARGET=$(echo "$FOLDER_NAME" | sed -E 's/^typesizes-binaries-//; s/-[0-9]+\.[0-9]+(\.[0-9]+)?(-rc[0-9]+)?$//')
 
-            # Determine the architecture cleanly from the target matrix folder
-            case "$FOLDER_NAME" in
-              *ramips-mt7621*)
-                ARCH="mipsel_24kc"
-                ;;
-              *mediatek-filogic*)
-                ARCH="aarch64_cortex-a53"
-                ;;
-              *)
-                ARCH=$(echo "$FOLDER_NAME" | sed 's/typesizes-binaries-//')
-                ;;
-            esac
-
-            # Copy .ipk package as clean minimalist name: typesizes_<arch>.ipk
+            # Copy .ipk packages
             while IFS= read -r -d '' file; do
-              cp "$file" "release-assets/typesizes_${ARCH}.ipk"
+              echo "Packaging IPK: $file -> release-assets/typesizes_${TARGET}.ipk"
+              cp "$file" "release-assets/typesizes_${TARGET}.ipk"
             done < <(find "$dir" -type f -name "typesizes*.ipk" -print0)
 
-            # Copy .apk package as clean minimalist name: typesizes_<arch>.apk
+            # Copy .apk packages
             while IFS= read -r -d '' file; do
-              cp "$file" "release-assets/typesizes_${ARCH}.apk"
+              echo "Packaging APK: $file -> release-assets/typesizes_${TARGET}.apk"
+              cp "$file" "release-assets/typesizes_${TARGET}.apk"
             done < <(find "$dir" -type f -name "typesizes*.apk" -print0)
           done
 

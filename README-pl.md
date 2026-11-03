@@ -17,7 +17,7 @@ Projekt zawiera w pełni zautomatyzowany proces budowania pakietów w formatach 
 │   ├── Makefile            # Główny Makefile pakietu dla OpenWrt SDK
 │   └── src/
 │       ├── Makefile        # Wewnętrzny Makefile kompilujący program typesizes
-│       └── typesizes.c     # Kod źródłowy w języku C
+│       └── typesizes.c     # Kod źródłowy w C z obsługą języka angielskiego i polskiego
 ├── LICENSE
 ├── README.md               # Dokumentacja w języku angielskim
 └── README-pl.md            # Dokumentacja w języku polskim
@@ -25,22 +25,21 @@ Projekt zawiera w pełni zautomatyzowany proces budowania pakietów w formatach 
 
 ---
 
-## 🎯 Pliki wyjściowe i architektury CPU
+## 🎯 Obsługiwane platformy i nazwy pakietów
 
-W OpenWrt pakiety binarne są kompilowane pod **architekturę procesora (CPU Architecture)**. Dzięki temu jeden plik binarny pasuje do wszystkich urządzeń opartych na danej architekturze.
+Pakiety w sekcji GitHub Releases są nazywane jednoznacznie według platformy docelowej (**`typesizes_<target>.<ext>`**):
 
-W wyniku automatycznego budowania (Release) powstają **dokładnie 4 gotowe pliki pakietów o czytelnych, prostych nazwach**:
-
-| Nazwa pliku w Release | Architektura CPU | Format | Wydanie OpenWrt | Obsługiwane routery |
-|---|---|---|---|---|
-| **`typesizes_mipsel_24kc.ipk`** | `mipsel_24kc` (ramips/mt7621) | `.ipk` (opkg) | OpenWrt 23.05 (stabilna) | **Netgear R6220**, **Xiaomi Mi Router 4A Gigabit** |
-| **`typesizes_mipsel_24kc.apk`** | `mipsel_24kc` (ramips/mt7621) | `.apk` (apk) | OpenWrt 25.12 (nowoczesna) | **Netgear R6220**, **Xiaomi Mi Router 4A Gigabit** |
-| **`typesizes_aarch64_cortex-a53.ipk`** | `aarch64_cortex-a53` (filogic) | `.ipk` (opkg) | OpenWrt 23.05 (stabilna) | **Cudy WR3000** (warianty s, h, p), Cudy M3000, RE3000 |
-| **`typesizes_aarch64_cortex-a53.apk`** | `aarch64_cortex-a53` (filogic) | `.apk` (apk) | OpenWrt 25.12 (nowoczesna) | **Cudy WR3000** (warianty s, h, p), Cudy M3000, RE3000 |
-
-### Dlaczego nazwy to `mipsel_24kc` i `aarch64_cortex-a53`?
-- **`mipsel_24kc`**: procesor MediaTek MT7621 to 32-bitowy rdzeń MIPS 1004Kc (little-endian). Jest to standardowa nazwa architektury w OpenWrt dla takich urządzeń jak Netgear R6220 oraz Xiaomi Mi Router 4A Gigabit.
-- **`aarch64_cortex-a53`**: procesor MediaTek Filogic 820 / MT7981B w routerach Cudy WR3000 to 64-bitowy procesor ARM Cortex-A53.
+| Nazwa pliku w Release | Target OpenWrt | Format | Wydanie OpenWrt | Obsługiwane routery / urządzenia | Architektura CPU |
+|---|---|---|---|---|---|
+| **`typesizes_ramips-mt7621.ipk`** | `ramips-mt7621` | `.ipk` (opkg) | OpenWrt 23.05 (stabilna) | **Netgear R6220**, **Xiaomi Mi Router 4A Gigabit** | MIPS 1004Kc (`mipsel_24kc`) |
+| **`typesizes_ramips-mt7621.apk`** | `ramips-mt7621` | `.apk` (apk) | OpenWrt 25.12 (nowoczesna) | **Netgear R6220**, **Xiaomi Mi Router 4A Gigabit** | MIPS 1004Kc (`mipsel_24kc`) |
+| **`typesizes_mediatek-filogic.apk`** | `mediatek-filogic` | `.apk` (apk) | OpenWrt 25.12 (nowoczesna) | **Cudy WR3000** (warianty s, h, p), Cudy M3000, RE3000 | ARM Cortex-A53 64-bit |
+| **`typesizes_ath79-generic.ipk`** | `ath79-generic` | `.ipk` (opkg) | OpenWrt 23.05 (stabilna) | Klasyczne routery TP-Link (Archer C7, TL-WR1043ND itp.) | MIPS 24Kc / 74Kc (`mips_24kc`) |
+| **`typesizes_ath79-generic.apk`** | `ath79-generic` | `.apk` (apk) | OpenWrt 25.12 (nowoczesna) | Klasyczne routery TP-Link | MIPS 24Kc / 74Kc (`mips_24kc`) |
+| **`typesizes_x86-64.apk`** | `x86-64` | `.apk` (apk) | OpenWrt 25.12 (nowoczesna) | Komputery PC x86_64, mini-PC, Proxmox, VMware, VirtualBox | AMD64 / Intel 64-bit |
+| **`typesizes_qualcommax-ipq807x.apk`** | `qualcommax-ipq807x` | `.apk` (apk) | OpenWrt 25.12 (nowoczesna) | Routery Qualcomm Wi-Fi 6 (Xiaomi AX3600, AX9000 itp.) | ARM Cortex-A53 64-bit |
+| **`typesizes_qualcommax-ipq60xx.apk`** | `qualcommax-ipq60xx` | `.apk` (apk) | OpenWrt 25.12 (nowoczesna) | Urządzenia Qualcomm Wi-Fi 6 IPQ60xx | ARM Cortex-A53 64-bit |
+| **`typesizes_bcm27xx-bcm2711.apk`** | `bcm27xx-bcm2711` | `.apk` (apk) | OpenWrt 25.12 (nowoczesna) | Raspberry Pi 4 | ARM Cortex-A72 64-bit |
 
 ---
 
@@ -53,17 +52,17 @@ Workflow (`.github/workflows/build.yml`) jest wyzwalany na dwa sposoby:
    git tag v1.0.0
    git push origin v1.0.0
    ```
-   Kompilowane są pakiety dla wszystkich skonfigurowanych architektur, a komplet 4 plików `.ipk` i `.apk` zostaje opublikowany w sekcji **Releases** na GitHubie.
+   Kompilowane są pakiety dla wszystkich skonfigurowanych architektur, a komplet gotowych plików `.ipk` i `.apk` zostaje opublikowany w sekcji **Releases** na GitHubie.
 
 2. **Ręcznie przez GitHub Actions (`workflow_dispatch`)**:
    - W repozytorium przejdź do zakładki **Actions** -> **Build OpenWrt Package**.
    - Kliknij przycisk **Run workflow**.
-   - Z listy rozwijanej wybierz konkretną architekturę (np. `ramips-mt7621-23.05.3`) lub opcję `all` (wszystkie).
+   - Z listy rozwijanej wybierz konkretną platformę lub opcję `all` (wszystkie).
    - Skompilowane pliki będą dostępne do pobrania jako **Artifacts** danego uruchomienia.
 
 ---
 
-## 🔧 Jak dodać nową architekturę lub nową wersję OpenWrt (np. 26.xx)?
+## 🔧 Jak dodać nową platformę lub nową wersję OpenWrt (np. 26.xx)?
 
 Wszystkie definicje platform znajdują się w pliku `.github/workflows/build.yml`. Aby dodać nową architekturę lub nową wersję OpenWrt, wystarczy edytować ten plik w dwóch miejscach:
 
@@ -73,34 +72,13 @@ Format parametru `ARCH` dla kontenerów OpenWrt SDK to:
 
 Przykłady:
 - `ramips-mt7621-26.01.0` (dla przyszłego wydania 26.xx na MT7621)
-- `x86-64-23.05.3` (dla komputerów / maszyn wirtualnych x86_64)
-- `ath79-generic-23.05.3` (dla starszych procesorów Qualcomm Atheros MIPS)
-- `qualcommax-ipq807x-24.10.0` (dla routerów na procesorach Qualcomm Wi-Fi 6)
+- `x86-64-26.01.0` (dla przyszłego wydania na x86_64)
 
 Dostępne tagi kontenerów SDK można sprawdzić w oficjalnym rejestrze Docker Hub: [hub.docker.com/r/openwrt/sdk/tags](https://hub.docker.com/r/openwrt/sdk/tags).
 
 ### 2. Edycja `.github/workflows/build.yml`
-
-W pliku `.github/workflows/build.yml`:
-
-1. Dodaj nową pozycję do listy wyboru w sekcji `workflow_dispatch -> inputs -> target_arch -> options`:
-   ```yaml
-   options:
-     - 'all'
-     - 'ramips-mt7621-23.05.3'
-     - 'ramips-mt7621-25.12.2'
-     - 'mediatek-filogic-23.05.3'
-     - 'mediatek-filogic-25.12.2'
-     - 'ramips-mt7621-26.01.0'        # <--- Dodaj tutaj (np. nowa wersja)
-     - 'x86-64-23.05.3'              # <--- Dodaj tutaj (np. nowa architektura)
-   ```
-
-2. Dodaj nową wartość do zmiennej `ALL_ARCHES` w kroku `set-matrix`:
-   ```bash
-   ALL_ARCHES='["ramips-mt7621-23.05.3", "ramips-mt7621-25.12.2", "mediatek-filogic-23.05.3", "mediatek-filogic-25.12.2", "ramips-mt7621-26.01.0", "x86-64-23.05.3"]'
-   ```
-
-Po zapisaniu zmian i wypchnięciu commita workflow natychmiast zacznie obsługiwać nowo dodaną architekturę!
+1. Dodaj nową pozycję do listy wyboru w sekcji `workflow_dispatch -> inputs -> target_arch -> options`.
+2. Dodaj nową wartość do listy `ALL_ARCHES` w kroku `set-matrix`.
 
 ---
 
@@ -109,23 +87,23 @@ Po zapisaniu zmian i wypchnięciu commita workflow natychmiast zacznie obsługiw
 ### 1. Instalacja pakietu `.ipk` (OpenWrt <= 23.05, menedżer `opkg`)
 Prześlij plik `.ipk` na router (np. przez `scp`):
 ```bash
-scp typesizes_mipsel_24kc.ipk root@192.168.1.1:/tmp/
+scp typesizes_ramips-mt7621.ipk root@192.168.1.1:/tmp/
 ```
 Zaloguj się przez SSH na router i zainstaluj:
 ```bash
 ssh root@192.168.1.1
-opkg install /tmp/typesizes_mipsel_24kc.ipk
+opkg install /tmp/typesizes_ramips-mt7621.ipk
 ```
 
 ### 2. Instalacja pakietu `.apk` (OpenWrt 24.10 / 25.x / nowsze, menedżer `apk`)
 Prześlij plik `.apk` na router:
 ```bash
-scp typesizes_mipsel_24kc.apk root@192.168.1.1:/tmp/
+scp typesizes_mediatek-filogic.apk root@192.168.1.1:/tmp/
 ```
 Zaloguj się przez SSH i zainstaluj:
 ```bash
 ssh root@192.168.1.1
-apk add --allow-untrusted /tmp/typesizes_mipsel_24kc.apk
+apk add --allow-untrusted /tmp/typesizes_mediatek-filogic.apk
 ```
 
 ### 3. Uruchomienie programu
@@ -133,37 +111,4 @@ Po instalacji program jest dostępny w ścieżce systemowej jako `/usr/bin/types
 ```bash
 typesizes
 ```
-
-Przykładowy wynik programu dla architektury 32-bitowej (`mipsel_24kc` - Netgear R6220 / Xiaomi 4A Gigabit):
-```text
-=== Rozmiary podstawowe ===
-Rozmiar short:       2 bajt(y)
-Rozmiar int:         4 bajt(y)
-Rozmiar long:        4 bajt(y)
-Rozmiar float:       4 bajt(y)
-Rozmiar long long:   8 bajt(y)
-Rozmiar double:      8 bajt(y)
-Rozmiar long double: 8 bajt(y)
-Rozmiar ptrdiff_t:   4 bajt(y)
-Rozmiar char:        1 bajt(y)
-Rozmiar wskaznika:   4 bajt(y)
-Rozmiar size_t:      4 bajt(y)
-Rozmiar bool:        1 bajt(y)
-```
-
-Przykładowy wynik programu dla architektury 64-bitowej (`aarch64_cortex-a53` - Cudy WR3000):
-```text
-=== Rozmiary podstawowe ===
-Rozmiar short:       2 bajt(y)
-Rozmiar int:         4 bajt(y)
-Rozmiar long:        8 bajt(y)
-Rozmiar float:       4 bajt(y)
-Rozmiar long long:   8 bajt(y)
-Rozmiar double:      8 bajt(y)
-Rozmiar long double: 16 bajt(y)
-Rozmiar ptrdiff_t:   8 bajt(y)
-Rozmiar char:        1 bajt(y)
-Rozmiar wskaznika:   8 bajt(y)
-Rozmiar size_t:      8 bajt(y)
-Rozmiar bool:        1 bajt(y)
-```
+Program automatycznie wykrywa język polski w zmiennych `LANG` / `LC_ALL`, a domyślnie wypisuje informacje po angielsku.

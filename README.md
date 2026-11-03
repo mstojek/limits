@@ -17,7 +17,7 @@ This project features automated package building for both **`.ipk`** (legacy for
 │   ├── Makefile            # Main OpenWrt SDK package Makefile
 │   └── src/
 │       ├── Makefile        # Inner Makefile compiling the typesizes binary
-│       └── typesizes.c     # C source code
+│       └── typesizes.c     # C source code with bilingual Polish/English output
 ├── LICENSE
 ├── README.md               # English documentation
 └── README-pl.md            # Polish documentation
@@ -25,22 +25,21 @@ This project features automated package building for both **`.ipk`** (legacy for
 
 ---
 
-## 🎯 Target Architectures & Generated Packages
+## 🎯 Target Platforms & Generated Packages
 
-In OpenWrt, binary packages are built against the **CPU architecture**. A single compiled binary runs on all devices sharing the same architecture.
+Packages in GitHub Releases are named cleanly using the target platform name (**`typesizes_<target>.<ext>`**):
 
-The GitHub Actions workflow produces **exactly 4 package files** in the Release with clean, minimalist filenames:
-
-| Release File Name | CPU Architecture | Format | OpenWrt Release | Supported Devices |
-|---|---|---|---|---|
-| **`typesizes_mipsel_24kc.ipk`** | `mipsel_24kc` (ramips/mt7621) | `.ipk` (opkg) | OpenWrt 23.05 (stable) | **Netgear R6220**, **Xiaomi Mi Router 4A Gigabit** |
-| **`typesizes_mipsel_24kc.apk`** | `mipsel_24kc` (ramips/mt7621) | `.apk` (apk) | OpenWrt 25.12 (modern) | **Netgear R6220**, **Xiaomi Mi Router 4A Gigabit** |
-| **`typesizes_aarch64_cortex-a53.ipk`** | `aarch64_cortex-a53` (filogic) | `.ipk` (opkg) | OpenWrt 23.05 (stable) | **Cudy WR3000** (s, h, p), M3000, RE3000 |
-| **`typesizes_aarch64_cortex-a53.apk`** | `aarch64_cortex-a53` (filogic) | `.apk` (apk) | OpenWrt 25.12 (modern) | **Cudy WR3000** (s, h, p), M3000, RE3000 |
-
-### Why `mipsel_24kc` and `aarch64_cortex-a53`?
-- **`mipsel_24kc`**: The MediaTek MT7621 SoC features a 32-bit MIPS 1004Kc CPU core (little-endian). This is standard OpenWrt architecture naming for devices like Netgear R6220 and Xiaomi Mi Router 4A Gigabit.
-- **`aarch64_cortex-a53`**: The MediaTek Filogic 820 / MT7981B SoC in Cudy WR3000 series features a 64-bit ARM Cortex-A53 CPU.
+| Release File Name | OpenWrt Target | Format | OpenWrt Release | Supported Hardware / Devices | CPU Architecture |
+|---|---|---|---|---|---|
+| **`typesizes_ramips-mt7621.ipk`** | `ramips-mt7621` | `.ipk` (opkg) | OpenWrt 23.05 (stable) | **Netgear R6220**, **Xiaomi Mi Router 4A Gigabit** | MIPS 1004Kc (`mipsel_24kc`) |
+| **`typesizes_ramips-mt7621.apk`** | `ramips-mt7621` | `.apk` (apk) | OpenWrt 25.12 (modern) | **Netgear R6220**, **Xiaomi Mi Router 4A Gigabit** | MIPS 1004Kc (`mipsel_24kc`) |
+| **`typesizes_mediatek-filogic.apk`** | `mediatek-filogic` | `.apk` (apk) | OpenWrt 25.12 (modern) | **Cudy WR3000** (s, h, p), M3000, RE3000 | ARM Cortex-A53 64-bit |
+| **`typesizes_ath79-generic.ipk`** | `ath79-generic` | `.ipk` (opkg) | OpenWrt 23.05 (stable) | Classic TP-Link routers (Archer C7, TL-WR1043ND, etc.) | MIPS 24Kc / 74Kc (`mips_24kc`) |
+| **`typesizes_ath79-generic.apk`** | `ath79-generic` | `.apk` (apk) | OpenWrt 25.12 (modern) | Classic TP-Link routers | MIPS 24Kc / 74Kc (`mips_24kc`) |
+| **`typesizes_x86-64.apk`** | `x86-64` | `.apk` (apk) | OpenWrt 25.12 (modern) | x86_64 PCs, mini-PCs, Proxmox, VMware, VirtualBox | AMD64 / Intel 64-bit |
+| **`typesizes_qualcommax-ipq807x.apk`** | `qualcommax-ipq807x`| `.apk` (apk) | OpenWrt 25.12 (modern) | Qualcomm Wi-Fi 6 routers (Xiaomi AX3600, AX9000, etc.) | ARM Cortex-A53 64-bit |
+| **`typesizes_qualcommax-ipq60xx.apk`** | `qualcommax-ipq60xx`| `.apk` (apk) | OpenWrt 25.12 (modern) | Qualcomm Wi-Fi 6 IPQ60xx devices | ARM Cortex-A53 64-bit |
+| **`typesizes_bcm27xx-bcm2711.apk`** | `bcm27xx-bcm2711` | `.apk` (apk) | OpenWrt 25.12 (modern) | Raspberry Pi 4 | ARM Cortex-A72 64-bit |
 
 ---
 
@@ -53,17 +52,17 @@ The workflow (`.github/workflows/build.yml`) is triggered in two ways:
    git tag v1.0.0
    git push origin v1.0.0
    ```
-   Compiles packages for all configured architectures and publishes all 4 `.ipk` and `.apk` files to the GitHub Release.
+   Compiles packages for all configured architectures and publishes all generated `.ipk` and `.apk` files to the GitHub Release.
 
 2. **Manually via GitHub Actions (`workflow_dispatch`)**:
    - Go to the **Actions** tab -> **Build OpenWrt Package**.
    - Click **Run workflow**.
-   - Choose a target architecture (e.g., `ramips-mt7621-23.05.3`) or `all`.
+   - Choose a target architecture or `all`.
    - Built packages will be saved and downloadable under job **Artifacts**.
 
 ---
 
-## 🔧 How to Add New Architectures or New OpenWrt Releases (e.g., 26.xx)
+## 🔧 How to Add New Targets or OpenWrt Releases (e.g., 26.xx)
 
 All targets are configured in `.github/workflows/build.yml`.
 
@@ -71,16 +70,9 @@ All targets are configured in `.github/workflows/build.yml`.
 The `ARCH` parameter corresponds to:
 `[target]-[subtarget]-[version]`
 
-Examples:
-- `ramips-mt7621-26.01.0` (for a future 26.xx release)
-- `x86-64-23.05.3` (for x86_64 PCs / VMs)
-- `ath79-generic-23.05.3` (for Qualcomm Atheros MIPS devices)
-
 You can check available Docker SDK tags at: [hub.docker.com/r/openwrt/sdk/tags](https://hub.docker.com/r/openwrt/sdk/tags).
 
 ### 2. Update `.github/workflows/build.yml`
-
-In `.github/workflows/build.yml`:
 1. Add the new entry to `workflow_dispatch -> inputs -> target_arch -> options`.
 2. Add the new string to `ALL_ARCHES` in the `set-matrix` step.
 
@@ -90,16 +82,16 @@ In `.github/workflows/build.yml`:
 
 ### Installing `.ipk` (OpenWrt <= 23.05, `opkg`)
 ```bash
-scp typesizes_mipsel_24kc.ipk root@192.168.1.1:/tmp/
+scp typesizes_ramips-mt7621.ipk root@192.168.1.1:/tmp/
 ssh root@192.168.1.1
-opkg install /tmp/typesizes_mipsel_24kc.ipk
+opkg install /tmp/typesizes_ramips-mt7621.ipk
 ```
 
 ### Installing `.apk` (OpenWrt >= 24.10, `apk`)
 ```bash
-scp typesizes_mipsel_24kc.apk root@192.168.1.1:/tmp/
+scp typesizes_mediatek-filogic.apk root@192.168.1.1:/tmp/
 ssh root@192.168.1.1
-apk add --allow-untrusted /tmp/typesizes_mipsel_24kc.apk
+apk add --allow-untrusted /tmp/typesizes_mediatek-filogic.apk
 ```
 
 ### Running the tool
@@ -107,3 +99,4 @@ Run the binary anywhere on the router:
 ```bash
 typesizes
 ```
+*(The tool prints in English by default, or in Polish if `LANG` or `LC_ALL` is set to Polish).*
